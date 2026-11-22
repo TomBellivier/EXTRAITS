@@ -12,7 +12,7 @@ authors:
     orcid: "https://orcid.org/0009-0009-0915-9679"
     affiliation: "LIBRe, cE3c - Centre for Ecology, Evolution and Environmental Changes, Faculdade de Ciências, Universidade de Lisboa, Portugal"
 version: 0.1.0
-# date-released: "YYYY-MM-DD"   # TODO
+date-released: "22-11-2026"
 license: MIT
 repository-code: "https://github.com/TomBellivier/EXTRAITS"
 url: "https://github.com/TomBellivier/EXTRAITS"
