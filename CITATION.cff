@@ -1,0 +1,273 @@
+# Citation metadata of EXTRAITS (https://citation-file-format.github.io).
+# TODO before publication: the DOI of the Zenodo archive and the paper.
+cff-version: 1.2.0
+message: >-
+  If you use EXTRAITS, please cite it as below, together with the GRIT project, the
+  image databases the models were trained on and Ultralytics YOLO (see "references").
+title: "EXTRAITS: morphological traits from dorsal images of insects"
+type: software
+authors:
+  - family-names: Bellivier
+    given-names: Tom
+    orcid: "https://orcid.org/0009-0009-0915-9679"
+    affiliation: "LIBRe, cE3c - Centre for Ecology, Evolution and Environmental Changes, Faculdade de Ciências, Universidade de Lisboa, Portugal"
+version: 0.1.0
+# date-released: "YYYY-MM-DD"   # TODO
+license: MIT
+repository-code: "https://github.com/TomBellivier/EXTRAITS"
+url: "https://github.com/TomBellivier/EXTRAITS"
+# doi: "10.5281/zenodo."   # TODO
+keywords:
+  - insects
+  - morphometrics
+  - traits
+  - pose estimation
+  - keypoints
+  - computer vision
+  - natural-history collections
+references:
+  # Ultralytics YOLO26 (reference recommended by Ultralytics; code under AGPL-3.0).
+  - type: article
+    title: "Ultralytics YOLO26: Unified Real-Time End-to-End Vision Models"
+    authors:
+      - family-names: Jocher
+        given-names: Glenn
+      - family-names: Qiu
+        given-names: Jing
+      - family-names: Liu
+        given-names: Mengyu
+      - family-names: Lyu
+        given-names: Shuai
+      - family-names: Akyon
+        given-names: Fatih Cagatay
+      - family-names: Kalfaoglu
+        given-names: Muhammet Esat
+    year: 2026
+    doi: "10.48550/arXiv.2606.03748"
+    url: "https://arxiv.org/abs/2606.03748"
+    repository-code: "https://github.com/ultralytics/ultralytics"
+
+  # GRIT project (metadata from Crossref, DOI 10.1111/icad.70035).
+  - type: article
+    title: "Toward a global repository of insect traits (GRIT)"
+    authors:
+      - family-names: Cardoso
+        given-names: Pedro
+        orcid: "https://orcid.org/0000-0001-8119-9960"
+      - family-names: Baker
+        given-names: Nathan Jay
+        orcid: "https://orcid.org/0000-0001-7948-106X"
+      - family-names: Boieiro
+        given-names: Mário
+      - family-names: Bonte
+        given-names: Dries
+      - family-names: Borges
+        given-names: Paulo A. V.
+      - family-names: Braby
+        given-names: Michael F.
+        orcid: "https://orcid.org/0000-0002-5438-587X"
+      - family-names: Branco
+        given-names: Vasco
+      - family-names: Chobanov
+        given-names: Dragan
+      - family-names: Correia
+        given-names: Luis
+      - family-names: Dalton
+        given-names: Daniel T.
+      - family-names: Damas-Mora
+        given-names: Mariana
+      - family-names: Didham
+        given-names: Raphael K.
+        orcid: "https://orcid.org/0000-0001-6685-7005"
+      - family-names: Forster
+        given-names: Lynne
+      - family-names: Glatz
+        given-names: Richard
+      - family-names: Gorneau
+        given-names: Jacob A.
+      - family-names: Hochkirch
+        given-names: Axel
+      - family-names: Kirse
+        given-names: Ameli
+      - family-names: Lichtenberg
+        given-names: Elinor M.
+        orcid: "https://orcid.org/0000-0002-2729-4534"
+      - family-names: Macías-Hernández
+        given-names: Nuria
+        orcid: "https://orcid.org/0000-0003-4759-3619"
+      - family-names: Miličić
+        given-names: Marija
+        orcid: "https://orcid.org/0000-0002-3154-660X"
+      - family-names: Moir
+        given-names: Melinda
+      - family-names: Moreno-García
+        given-names: Pablo
+      - family-names: Neessen
+        given-names: Ruth
+      - family-names: Noriega
+        given-names: Jorge Ari
+        orcid: "https://orcid.org/0000-0003-1760-7020"
+      - family-names: Penick
+        given-names: Clint A.
+      - family-names: Perry
+        given-names: Kayla I.
+        orcid: "https://orcid.org/0000-0001-9903-8057"
+      - family-names: Pryke
+        given-names: James
+        orcid: "https://orcid.org/0000-0003-3148-5744"
+      - family-names: Rego
+        given-names: Carla
+      - family-names: Roeder
+        given-names: Karl A.
+      - family-names: Saussure
+        given-names: Stéphanie
+      - family-names: Shirey
+        given-names: Vaughn
+      - family-names: Sihvonen
+        given-names: Pasi
+      - family-names: Svetnik
+        given-names: Ilja
+      - family-names: Tarasov
+        given-names: Sergei
+      - family-names: Trindade
+        given-names: Pedro
+      - family-names: Welti
+        given-names: Ellen A. R.
+      - family-names: Wong
+        given-names: Mark
+        orcid: "https://orcid.org/0000-0002-6248-3103"
+      - family-names: Scherber
+        given-names: Christoph
+    journal: "Insect Conservation and Diversity"
+    volume: 19
+    issue: "2"
+    start: 253
+    end: 267
+    year: 2026  
+    doi: "10.1111/icad.70035"
+    url: "https://resjournals.onlinelibrary.wiley.com/doi/10.1111/icad.70035"
+    license: CC-BY-NC-4.0
+
+  # Images: Hawaii beetles (dataset + paper, citations recommended by the dataset card).
+  # The NEON acknowledgements requested by the card go in the README.
+  - type: data
+    title: "Hawaii Beetles"
+    authors:
+      - name: "S M Rayeed"
+      - family-names: Khurana
+        given-names: Mridul
+      - family-names: East
+        given-names: Alyson
+      - family-names: Stevens
+        given-names: Samuel
+      - family-names: Zarubiieva
+        given-names: Iuliia
+      - family-names: Wu
+        given-names: Jiaman (Lisa)
+      - family-names: Lowe
+        given-names: Scott C.
+      - family-names: Campolongo
+        given-names: Elizabeth G.
+      - family-names: Donoso
+        given-names: Evan D.
+      - family-names: Berger-Wolf
+        given-names: Tanya
+      - family-names: Stewart
+        given-names: Charles V.
+      - family-names: Taylor
+        given-names: Graham W.
+      - family-names: Record
+        given-names: Sydne
+    publisher:
+      name: "Hugging Face"
+    year: 2025
+    version: "a6a3ee5"  
+    doi: "10.57967/hf/7272"
+    url: "https://huggingface.co/datasets/imageomics/Hawaii-beetles"
+    license: CC-BY-4.0
+
+  - type: article
+    title: "A continental-scale dataset of ground beetles with high-resolution images and validated morphological trait measurements"
+    authors:
+      - name: "S M Rayeed"
+      - family-names: Khurana
+        given-names: Mridul
+      - family-names: East
+        given-names: Alyson
+      - family-names: Fluck
+        given-names: Isadora E.
+      - family-names: Campolongo
+        given-names: Elizabeth G.
+      - family-names: Stevens
+        given-names: Samuel
+      - family-names: Zarubiieva
+        given-names: Iuliia
+      - family-names: Lowe
+        given-names: Scott C.
+      - family-names: Denslow
+        given-names: Michael W.
+      - family-names: Donoso
+        given-names: Evan D.
+      - family-names: Wu
+        given-names: Jiaman
+      - family-names: Ramirez
+        given-names: Michelle
+      - family-names: Baiser
+        given-names: Benjamin
+      - family-names: Stewart
+        given-names: Charles V.
+      - family-names: Mabee
+        given-names: Paula
+      - family-names: Berger-Wolf
+        given-names: Tanya
+      - family-names: Karpatne
+        given-names: Anuj
+      - family-names: Lapp
+        given-names: Hilmar
+      - family-names: Guralnick
+        given-names: Robert P.
+      - family-names: Taylor
+        given-names: Graham W.
+      - family-names: Record
+        given-names: Sydne
+    year: 2026
+    doi: "10.48550/arXiv.2601.10687"
+    url: "https://arxiv.org/abs/2601.10687"
+
+  # Images: ORBIT project. Authors = photographers of the images used.
+  - type: data
+    title: "ORBIT project images"  
+    authors:
+      - family-names: Kasparek
+        given-names: Max
+      - family-names: Le Divelec
+        given-names: Romain
+      - family-names: Rosa
+        given-names: Paolo
+      - name: "Biodiversitätszentrum Oberösterreich - OÖ Landes-Kultur GmbH"
+      - family-names: Wood
+        given-names: T. J.
+      - family-names: Flaminio
+        given-names: Simone
+      - family-names: Radchenko
+        given-names: V.
+      - family-names: Vereecken   
+        given-names: N. J.
+    contact:   # project leads
+      - family-names: Rosa
+        given-names: Paolo
+      - family-names: Michez   
+        given-names: Denis
+    url: "https://orbitproject.wordpress.com/"
+    year: 2026
+
+  # Images: Finnish Museum of Natural History (Luomus), images sent directly.
+  - type: data
+    title: "Insect images from the collections of the Finnish Museum of Natural History (Luomus)"  
+    authors:
+      - name: "Finnish Museum of Natural History (Luomus), University of Helsinki"
+    location:
+      name: "Helsinki, Finland"
+    year: 2026   
+
+# preferred-citation: TODO the paper, once published

@@ -1,0 +1,11 @@
+# @package _global_
+# Frozen experiment (§5.3). Every result quoted in the report goes through such a file.
+defaults:
+  - override /data: pooled
+  - override /approach: mean_pose
+  - override /cv: kfold5_grouped
+  - override /eval: default
+  - override /tuning: optuna_default
+
+tag: ref_baseline
+seed: 42

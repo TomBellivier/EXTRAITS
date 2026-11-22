@@ -1,0 +1,87 @@
+# =============================================================================
+# run.yaml - settings of `extraits run`, the whole chain in one command
+# =============================================================================
+#     extraits run                      <workspace>/run.yaml
+#     extraits run --config my_run.yaml
+#     extraits run --dry-run            print the commands, run nothing
+#     extraits run --only pose process  run these steps only
+#     extraits run --skip annotations   run every step but this one
+#
+# Steps, in order: annotations -> check -> pose -> validity -> process -> analysis
+# Paths are relative to the workspace (absolute paths work too). A missing setting
+# takes its default value (the one written here); an unknown one is reported.
+
+# --- 1. Annotations (extraits annotate to-csv + build-table, then check) ---------------
+annotations:
+  rebuild_table: true               # Label Studio exports -> pose CSV -> annotations/annotation_data.csv
+  check: true                       # extraits annotate check (report in results/annotation_check/)
+  stop_on_errors: true              # stop the run when the check finds an ERROR
+  stop_on_warnings: false           # also stop on a WARNING
+
+# --- 2. Pose model training (extraits pose ...) ------------------------------------------
+pose_training:
+  enabled: true                     # false: process uses the models already in models/pose/
+  # train     one training per fold, with the fixed hyperparameters of the experiment
+  # optimise  Optuna hyperparameter search, then one training per fold with the best ones
+  mode: train
+  # Outer folds to train, among the 5 of the protocol (0 to 4): a list such as [0] or
+  # [0, 1, 2], or "all". Every fold trained is one model of the ensemble process averages.
+  # With mode: optimise, these are the folds retrained after the search.
+  folds: [0]
+  experiment: exp_a_yolo_pooled     # only yolo_pooled models are exported to models/pose/
+  epochs: 100                       # training epochs of each model
+  device: auto                      # auto | cpu | "0" | "0,1" (several GPUs) | mps (Apple GPU)
+  tag: null                         # label of the runs (null: the experiment's)
+  force: false                      # true: retrain the runs that are already complete
+  optimisation:                     # used with mode: optimise
+    # tune_once  one search, on the inner folds of search_fold, reused for every fold
+    # nested     one search per fold (folds x n_trials x inner_folds trainings: expensive)
+    search: tune_once
+    search_fold: 0
+    n_trials: 20                    # trials of each search
+    inner_folds: 3                  # inner folds each trial is trained on
+    final_full_fit: false           # also train a model on ALL the images, added to the ensemble
+  extra_overrides: []               # any other setting of the framework, e.g. ["train.batch_size=8"]
+
+# --- 3. Measurement-validity classifiers (extraits train validity) -----------------------
+validity:
+  train: true                       # (re)train them on the measurement statuses of the table
+  min_per_class: 20                 # a measurement gets a classifier with at least this many images in each class
+  n_folds: 5                        # folds of the out-of-fold evaluation
+
+# --- 4. Measure new images (extraits process) ---------------------------------------------
+process:
+  enabled: true
+  source: folder                    # folder | hf (Hugging Face dataset; token: environment variable HF_TOKEN)
+  input: images_to_process          # source: folder - searched recursively
+  hf_dataset: null                  # source: hf - e.g. "user/dataset"
+  hf_folders: []                    # source: hf - e.g. [1, 2]; [] = every folder
+  output: images_to_process/results.csv
+  # auto       scale bar, then ruler when no scale bar is found
+  # scale_bar  scale bar only        ruler  ruler only        none  no scale (no millimetres)
+  scale: auto
+  validity: true                    # false: no measurement-validity columns
+  pose_models: null                 # null: models/pose/; or another folder / .pt file
+  workers: null                     # null: sized to the machine (GPUs, CPUs, free memory)
+
+# --- 5. Analyses ------------------------------------------------------------------------------
+analysis:
+  enabled: true
+  pose_report: true                 # tables and figures of every pose run -> results/pose/
+  process_results: true             # figures and summary of the process output -> results/pipeline/
+  review_threshold: 0.5             # confidence below which an image counts as "needs review"
+  ground_truth: true                # measure the real error on the annotated images of the table
+  annotated_copies: false           # also write every image with its keypoints and scale drawn on it
+
+# --- Research analyses (scripts of the research/ folder of the repository) ------------------
+# Run only when research/ is found: research_dir, else next to the installed extraits-research.
+research:
+  research_dir: null
+  pose_comparison: false            # heatmaps and cost figures of the pose models -> results/pose/comparison/
+  optuna_plots: false               # diagnostics of the hyperparameter searches -> results/pose/optuna/
+  validity_comparison: false        # the 8 measurement-validity approaches -> results/meas_classifier/comparison/
+  ruler_evaluation: false           # evaluate the ruler detector on the annotated images -> results/ruler_detection/
+
+# --- Run --------------------------------------------------------------------------------------
+run:
+  log_dir: results/run_logs         # every command and its output, one log per run

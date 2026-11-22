@@ -1,0 +1,80 @@
+# Lint, tests (CPU, Python 3.10 and 3.12) and an end-to-end smoke test with the
+# published models.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "ruff>=0.5"
+      # Syntax errors and undefined names, checked for the oldest supported Python.
+      - run: ruff check src tests research tools --select E9,F63,F7,F82 --target-version py310
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: System libraries (OpenCV)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libgl1 libglib2.0-0
+      - name: Install (CPU PyTorch)
+        run: |
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev]" -e research/
+      - name: Tests
+        env:
+          MPLBACKEND: Agg
+        run: pytest -q tests research/tests
+
+  smoke:
+    # `extraits process` end to end with the published models, on a synthetic image
+    # (the annotated images are not public). The model repository must be public, or
+    # an HF_TOKEN secret must give access to it.
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libgl1 libglib2.0-0
+      - run: |
+          pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+          pip install -e ".[dev]"
+      - name: Model cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/extraits-models
+            ~/.EasyOCR
+          key: models-${{ hashFiles('src/extraits/models.yaml') }}
+      - name: Download the models
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: extraits download-models --models-dir ~/extraits-models --with-ocr
+      - name: End-to-end test
+        env:
+          MPLBACKEND: Agg
+        run: EXTRAITS_MODELS="$HOME/extraits-models" pytest -q -m models tests

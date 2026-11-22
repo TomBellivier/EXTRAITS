@@ -1,0 +1,133 @@
+# Root config. Every key has an explicit default value (CONVENTIONS.md §5.2).
+defaults:
+  - paths
+  - data: pooled
+  - cv: kfold5_grouped
+  - eval: default
+  - tuning: optuna_default
+  - approach: mean_pose
+  - _self_
+  # Placed last: a frozen experiment (§5.3) overrides everything else.
+  - experiment: null
+
+# --- identification ---
+tag: dev                  # free label, part of the run_id
+force: false              # true = run again even if the run already exists (idempotence §8.1)
+mode: full                # full | debug (deterministic, slower) | smoke (minimal fixture)
+
+# --- protocol ---
+seed: 42
+split_id: null            # null = derived from cv.*; otherwise explicit name of an existing split
+fold: 0                   # current outer fold
+# Outer folds run by `train` and `tune` (ADR-0039): null = `fold` only for `train`, every
+# outer fold for `tune`; otherwise a list ([0, 2]) or "all". The folds run form ONE
+# ensemble in <models>/pose/. Operational key: it enters neither the run_id nor
+# the variant_hash (each fold stays a run of its own).
+folds: null
+
+# --- common protocol: DO NOT override per approach (ADR-0013) ---
+# An approach trained at another resolution no longer compares the method but the
+# resolution. The strict.enforce_common_image_size guard refuses the divergence.
+protocol:
+  image_size: [640, 640]
+
+# --- generic training (overridable per approach, EXCEPT image_size) ---
+train:
+  epochs: 100
+  # Fixed on purpose: two runs only compare at an equal batch size (ADR-0013/0019). -1 =
+  # automatic size from the VRAM (Ultralytics, CUDA only), outside the protocol.
+  batch_size: 16
+  # Data-loading workers. auto = usable CPUs - 1, capped at 8 (0 on a single-CPU
+  # machine: loading in the main process).
+  num_workers: auto
+  image_size: ${protocol.image_size}
+  early_stopping_patience: 20
+  # ADR-0019: hardware. 'auto' => GPU 0 if CUDA is available, else the Apple GPU (mps),
+  # else cpu. Multi-GPU: device: "0,1". The resolved hardware is recorded in the manifest.
+  device: auto            # auto | cpu | "0" | "0,1" | mps
+  amp: true               # mixed precision; automatically off on CPU and in mode=debug
+  cache: false            # false | ram | disk: dataset cache, a net gain if I/O is limiting
+  plots: false            # Ultralytics figures: noise in the HPO runs
+
+# --- retained models (used as they are by `extraits process`) ---
+# <models>/pose/ holds AN ENSEMBLE of models: the pipeline runs them all and
+# averages every keypoint coordinate (mean + standard deviation in its CSV).
+#   train    -> the ensemble is replaced by THIS model (zero std in the pipeline)
+#   tune     -> the ensemble is replaced by the models of the outer folds (one per fold)
+#   evaluate -> the ensemble is replaced by the given run: an already-trained run is
+#               exported without retraining, `evaluate run_id=<run_id>`
+# The export copies runs/<run_id>/weights/ to <models>/pose/<name>/, with a
+# model_card.json. A `mode: smoke` run and an HPO trial are never exported.
+# These keys are operational: they enter NEITHER the run_id NOR the variant_hash (see
+# context.py), otherwise `retain.name=x` would retrain everything.
+retain:
+  enabled: true           # false = the run stays in runs/ without being exported
+  # Exportable approaches: a single YOLO-pose on the full schema, which the pipeline
+  # loads like any other member of the ensemble. The others (lora, group_bn,
+  # per_dataset, reduced...) remain study objects.
+  approaches: [yolo_pooled]
+  # null = one folder per run (run_id). A fixed name is overwritten by every run that
+  # reuses it: `tune` exports one fold per outer fold, only the last one would remain.
+  # To be kept for a single run.
+  name: null
+  hpo_trials: false       # true = also export the HPO trials (one model per trial)
+
+# --- fine-tuning (`extraits finetune`, verb `finetune`; extraits/pose/finetune.py) ---
+# Adapts the pose models to new annotated images. Two modes:
+#   produce  (evaluate: false) every chosen member of the base ensemble is fine-tuned on
+#            ALL the new images; the fine-tuned ensemble is written to <output>/pose/
+#            (never to the base models nor to paths.retained)
+#   evaluate (evaluate: true) k-fold before/after comparison of ONE base member, written
+#            to results/pose/finetune/<name>/; nothing is exported
+# None of these keys enters a run_id (context.py).
+finetune:
+  evaluate: false
+  # Images, and their annotations: Label Studio JSON exports or CSV files in the columns
+  # of annotation_data.csv (image_name, group, <kp>_x, <kp>_y, <kp>_v; docs/finetune.md).
+  # annotations: null = layout <images_dir>/<order>/{*.json, images/}.
+  images_dir: ${paths.root}/finetune-images
+  annotations: null
+  group: null             # insect order of every image, when the annotations carry none
+  base_models: null       # folder of the base ensemble; null = ${paths.retained}/pose
+  # produce: null | all = every member; or one member (folder name) or a variant_hash.
+  # evaluate: null = the fold-0 member; or one member (folder name) or a variant_hash.
+  base: null
+  output: null            # produce: models folder to write (required)
+  name: null              # work folders runs/finetune/<name>, data/pose/finetune/<name>;
+                          # null = output folder name (produce), base variant_hash (evaluate)
+  overwrite: false        # produce: replace <output>/pose/ when it is not empty
+  copy_other_models: true # produce: copy scale_bar/ and measurement_validity/ next to pose/
+  n_folds: 10             # evaluate
+  epochs: null            # null = the number of epochs the base model was trained with
+  # evaluate, analysis only: an image is "detected" when it carries a skeleton in the
+  # sense of `extraits process`: a prediction with a box score >= this threshold,
+  # whatever its distance to the GT. null = POSE_CONF_THRESHOLD of
+  # extraits/process/config.py. The point metrics are computed on the images detected
+  # before AND after, at this threshold.
+  score_threshold: null
+  # evaluate: one before | after figure per test image -> results/pose/finetune/<name>/figures/.
+  figures: true
+
+# --- report ---
+report:
+  figures: true           # false = tables only (faster aggregation)
+  # One folder of figures per run, under results/runs/<run_id>/. The global report
+  # compares the models; these folders let one examine a run in isolation without the
+  # next one overwriting it.
+  per_run_figures: true
+  dpi: 150
+  split: test             # split the figures are about
+
+# --- guards ---
+strict:
+  require_validated_keypoints: true    # refuses PLACEHOLDER schemas (frozen schema: ADR-0006)
+  enforce_common_image_size: true      # refuses an approach with a diverging resolution (ADR-0013)
+  require_clean_git: false             # true => refuses a repository with uncommitted changes
+  validate_contracts: true             # validates every artefact when it is written
+
+hydra:
+  run:
+    dir: .
+  output_subdir: null
+  job:
+    chdir: false

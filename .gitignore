@@ -1,0 +1,59 @@
+# --- Private working notes (agent handoff) -------------------------------------
+/HANDOFF.md
+# Output of `tools/upload_models.py --dry-run`
+upload_preview/
+
+# --- Python / tooling ---------------------------------------------------------
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# --- Model weights: published on Hugging Face, never in git --------------------
+*.pt
+*.pth
+*.joblib
+*.onnx
+*.safetensors
+
+# --- Images and generated data -------------------------------------------------
+*.png
+# README illustration (Hawaii Beetles, CC-BY-4.0)
+!/example.png
+*.jpg
+*.jpeg
+*.tif
+*.tiff
+*.bmp
+*.webp
+*.log
+*.pkl
+*.parquet
+*.cache
+
+# --- Private workspace (images, annotations, runs, results, local models) -----
+# EXTRAITS reads and writes its data in a workspace folder outside the repository
+# (--workspace / $EXTRAITS_WORKSPACE; see docs/pose/README.md). These entries keep
+# a workspace, or the former in-repo data folders, out of git.
+/workspace/
+/annotated_images/
+/annotation_data/
+/images_to_process/
+/retained_models/
+/results/
+/weights/
+/modules/architectures/
+/runs/
+datasets/*/images/
+datasets/*/labels/
+
+# --- JSON files are data here (Label Studio exports, run manifests) ---------------
+*.json
+!**/package.json

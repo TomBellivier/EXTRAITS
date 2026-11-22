@@ -1,0 +1,127 @@
+# Official EXTRAITS models: where `extraits download-models` gets them, and the
+# sha256 of every file. Written by tools/upload_models.py; do not edit by hand.
+#
+# revision is the commit hash on the Hugging Face Hub (immutable); tag is the
+# human-readable name of the same revision. Both are null until the models are
+# published.
+repo_id: TomBellivier/extraits-models
+revision: eea00360e1577f36053a4bbf5891e0368c50d2e3
+tag: v0.1.0
+files:
+  measurement_validity/metrics.csv:
+    sha256: 44623d55fafb542b0b9ac5be991e24dfd915c42cb9f07772ff6551894daf2420
+    size: 6319
+  measurement_validity/rf_related_abdomen length.joblib:
+    sha256: 0332eff6bf4bfdc4c48ff98770a35631a4271fe632423f3bed09cd96194fe929
+    size: 1601081
+  measurement_validity/rf_related_abdomen width.joblib:
+    sha256: 1411e631ee6cd8f5452d452a9bac739bb8831245d64106584b3b4d2df8a9e523
+    size: 1175113
+  measurement_validity/rf_related_head length.joblib:
+    sha256: a63cf32381bce8afb763053ec5d20e3917ac18a5ac03ea88e6163cdf4c1f23ce
+    size: 1598617
+  measurement_validity/rf_related_head width.joblib:
+    sha256: 58a859a0b72469fd77f1576d94ed1749e7f4b188a81618c1ff6ef3d3201d6d2d
+    size: 1511993
+  measurement_validity/rf_related_inter ocular distance.joblib:
+    sha256: 14a1947fce7ad083f0eae3ee0dc92583af3410b50813439a572edb5c65186171
+    size: 913273
+  measurement_validity/rf_related_intertegular distance.joblib:
+    sha256: 6d00760f6fa9be2510b3f28962bd48177cc82128354c9be903ed9fb6f00d8adb
+    size: 559625
+  measurement_validity/rf_related_left antenna length.joblib:
+    sha256: 71a487595b4903e769ba336cbf72a34d6fe570fde6ffc76c15f3db2d352f87c3
+    size: 533369
+  measurement_validity/rf_related_left fore wing length.joblib:
+    sha256: 51f06f66c90b402a481b11e7467761afd65b1179b322e4fc0eb15b51a0e84d48
+    size: 1627769
+  measurement_validity/rf_related_left fore wing width.joblib:
+    sha256: 8cfdf94ed16ed7ecd609c31e46c62325518ecd66f14521dc18ad253043e4e0f9
+    size: 1850441
+  measurement_validity/rf_related_left hind leg femur length.joblib:
+    sha256: 7b19ff925656e49ff347ec55b0154e4a69a7000ce4196df34659f098c4176fcd
+    size: 364361
+  measurement_validity/rf_related_left hind leg length.joblib:
+    sha256: 882cf072140c9f953ff8083566c90db1335ce3c29b8a6e242b0fa2e6345a9ab4
+    size: 256041
+  measurement_validity/rf_related_left hind leg tarsus length.joblib:
+    sha256: 32e087410fe0afb046158110eed6ae92f25d3bf60abce82cf9718319cffd6d93
+    size: 360137
+  measurement_validity/rf_related_left hind leg tibia length.joblib:
+    sha256: 2752d41307aa04ae9fb6efaefab0f1b4a01eedd47ed04d907e570721a52bb2ea
+    size: 398057
+  measurement_validity/rf_related_left hind wing length.joblib:
+    sha256: 3c0080f91da281ba0b89c58ddd69047be8b99b62656665f1b53f7b118e1a3410
+    size: 517849
+  measurement_validity/rf_related_left hind wing width.joblib:
+    sha256: 7baa046462968bd33eba75423ffacc4fa8b6a3c9f5a13c8463191537ea57c53f
+    size: 546601
+  measurement_validity/rf_related_right antenna length.joblib:
+    sha256: 6586a1aebad6745014d4a3d5de7834c89787e06984f80b9b0628403844d2fc2b
+    size: 624905
+  measurement_validity/rf_related_right fore wing length.joblib:
+    sha256: 98ad7119bdb890c277a19edc760fb1fb874bcd0f882b8909e551a88fc2539380
+    size: 1607129
+  measurement_validity/rf_related_right fore wing width.joblib:
+    sha256: c29ba57afbbcf0505e91ca10727ea654d0862ed6c0bf95f64cb850ae53674336
+    size: 1816857
+  measurement_validity/rf_related_right hind leg femur length.joblib:
+    sha256: 248f9ddba90cce7d95e844bbea4d24ea26f9ae9b37f5f471e62553411a4066e0
+    size: 341657
+  measurement_validity/rf_related_right hind leg length.joblib:
+    sha256: 93be03838e36b73438aa99e2e3a7870770e69707b12798ec58df6b3b7c847fcf
+    size: 247577
+  measurement_validity/rf_related_right hind leg tarsus length.joblib:
+    sha256: 54e9bb057b2caa5fe8059a4c010a57dd214edc6f39397307dae6adfef1d4ff4f
+    size: 390393
+  measurement_validity/rf_related_right hind leg tibia length.joblib:
+    sha256: 38fd387abec9dff2a368b9085ab2bc254bd6c7f5123e69d0a1ee0a1b32956193
+    size: 433593
+  measurement_validity/rf_related_right hind wing length.joblib:
+    sha256: 72c0f8bbe963895f906be2bbc28a679fe717c980e07a8ce600778fb87e6e7892
+    size: 581529
+  measurement_validity/rf_related_right hind wing width.joblib:
+    sha256: ba329b4f0b8d8146e28bf2c78242c49fc1b2135baf9486c76fba52ef61f1727b
+    size: 568377
+  measurement_validity/rf_related_thorax width.joblib:
+    sha256: b547c2de6b55eabd51aa8651e7ca15a0825c996cb9a0ed7a309da81560c01402
+    size: 554953
+  measurement_validity/rf_related_total length.joblib:
+    sha256: 01e9bdd9120a4b37be6a1abaec4447400e223c5e71859cbaebffbf8dc7e87aa5
+    size: 2375961
+  pose/ensemble.json:
+    sha256: d29e089998334b348f37b5c088fc2b2f716064908a85933174cbe9f6c1098fec
+    size: 1293
+  pose/yolo_pooled__pooled__kfold5_grouped_seed42_pooled__fold0__pooled_yolo-tuned__e019aa15/best.pt:
+    sha256: a0421055788740a94fdf33406f0847501fbdc7e080f94010b9868c8fa2921f1f
+    size: 14262126
+  pose/yolo_pooled__pooled__kfold5_grouped_seed42_pooled__fold0__pooled_yolo-tuned__e019aa15/model_card.json:
+    sha256: 4d25449a93a45e670f0994223bb042cfad8e4526e185bedeaa7d60555812cae5
+    size: 1579
+  pose/yolo_pooled__pooled__kfold5_grouped_seed42_pooled__fold1__pooled_yolo-tuned__dc08bcf5/best.pt:
+    sha256: f013effb9a41f5697c8bee47cb9861a30b6c0194f776c7d328845371ed2b79e8
+    size: 14262126
+  pose/yolo_pooled__pooled__kfold5_grouped_seed42_pooled__fold1__pooled_yolo-tuned__dc08bcf5/model_card.json:
+    sha256: 481eec18d823a8ea2da3c34cb754d522d44acbfeb7686f70289ba07280dd53cc
+    size: 1579
+  pose/yolo_pooled__pooled__kfold5_grouped_seed42_pooled__fold2__pooled_yolo-tuned__9a1dc23c/best.pt:
+    sha256: 8b4876c1088df50ed7cb5e06dd2f7ebe2946c7e9ad25ad9519f3263d7afd596b
+    size: 14262126
+  pose/yolo_pooled__pooled__kfold5_grouped_seed42_pooled__fold2__pooled_yolo-tuned__9a1dc23c/model_card.json:
+    sha256: 029c0e7b661bba5c2d5925921ff2c88502713fae4ee49fc38f907c5f45261265
+    size: 1579
+  pose/yolo_pooled__pooled__kfold5_grouped_seed42_pooled__fold3__pooled_yolo-tuned__ef4ff9d8/best.pt:
+    sha256: 582a84d8ef34238427a88c0adcbed9c8cd892f02a5865977ee0ed982fdf13c87
+    size: 14262126
+  pose/yolo_pooled__pooled__kfold5_grouped_seed42_pooled__fold3__pooled_yolo-tuned__ef4ff9d8/model_card.json:
+    sha256: 9d4786893669a38dfadac87961576b538c6cc6916d0d05f99a1f387f3ed7c81e
+    size: 1579
+  pose/yolo_pooled__pooled__kfold5_grouped_seed42_pooled__fold4__pooled_yolo-tuned__583de0c4/best.pt:
+    sha256: af3afc45be4b0f823a3b9ace54fd23df0b94357a77e8a1bc6a3a22dbdbd2d7ee
+    size: 14262126
+  pose/yolo_pooled__pooled__kfold5_grouped_seed42_pooled__fold4__pooled_yolo-tuned__583de0c4/model_card.json:
+    sha256: 29c2c00a9a760c777205cb90b97571aa005bf43668404ac73e0ef24a2fad9ac5
+    size: 1577
+  scale_bar/best.pt:
+    sha256: 07b2a79b8d9dfc324edd669595d2616415ca8961f389ae44a8fff08735ec3fa1
+    size: 22605802

@@ -1,0 +1,157 @@
+"""Tests of the metrics on hand-computed cases (§10.2).
+
+A metric whose value cannot be predicted on a trivial case cannot be used to decide
+between approaches.
+"""
+
+from __future__ import annotations
+
+import numpy as np
+import pandas as pd
+import pytest
+
+from extraits.pose.data.keypoints import load_schema
+from extraits.pose.evaluation.evaluator import evaluate_predictions
+from extraits.pose.evaluation.matching import assign_greedy, average_precision
+
+SCHEMA = "insect42_v1"
+
+
+def _template(k: int) -> list[float]:
+    """Toy instance: spread points, thorax-left/right 20 px apart."""
+    pts = np.stack([np.linspace(20, 80, k), np.linspace(20, 80, k)], axis=1)
+    pts[6] = [40.0, 50.0]   # thorax-left
+    pts[7] = [60.0, 50.0]   # thorax-right -> thorax width = 20 px
+    return [float(v) for v in pts.reshape(-1)]
+
+
+def _gt_row(image_id: str, kpts: list[float], k: int) -> dict:
+    return {
+        "schema_version": 1, "dataset": "coleoptera", "image_id": image_id,
+        "image_path": "raw/x.png", "image_width": 100, "image_height": 100,
+        "instance_id": f"{image_id}#0", "group_id": image_id,
+        "bbox_xywh": [0.0, 0.0, 100.0, 100.0], "kpts_xy": kpts,
+        "kpts_vis": [2] * k, "area": 10000.0, "keypoint_schema": SCHEMA,
+        "split_source": "unknown", "qc_flags": "",
+    }
+
+
+def _pred_row(image_id: str, kpts: list[float], k: int, score: float = 1.0) -> dict:
+    return {
+        "schema_version": 1, "run_id": "r", "fold": 0, "split": "test",
+        "dataset": "coleoptera", "image_id": image_id, "pred_id": f"{image_id}#p",
+        "bbox_xywh": [0.0, 0.0, 100.0, 100.0], "bbox_score": score, "kpts_xy": kpts,
+        "kpts_score": [1.0] * k, "keypoint_schema": SCHEMA,
+        "bbox_source": "predicted", "inference_ms": 1.0,
+    }
+
+
+@pytest.fixture()
+def eval_cfg(cfg):
+    return cfg.eval
+
+
+def test_perfect_predictions_give_perfect_scores(project, eval_cfg) -> None:
+    schema = load_schema(SCHEMA, project.configs)
+    k = schema.n_keypoints
+    kpts = _template(k)
+    gt = pd.DataFrame([_gt_row("coleoptera/a", kpts, k)])
+    pred = pd.DataFrame([_pred_row("coleoptera/a", kpts, k)])
+
+    out = evaluate_predictions(pred, gt, {SCHEMA: schema}, eval_cfg)
+    values = out.set_index(["scope", "metric"])["value"]
+    assert values[("overall", "oks_ap")] == pytest.approx(1.0)
+    assert values[("overall", "pck@0.25_thorax_width")] == pytest.approx(1.0)
+    assert values[("overall", "nme_matched_only")] == pytest.approx(0.0, abs=1e-9)
+
+
+def test_missed_instance_is_counted_as_failure(project, eval_cfg) -> None:
+    """An unpredicted image must lower the PCK, not disappear from the denominator."""
+    schema = load_schema(SCHEMA, project.configs)
+    k = schema.n_keypoints
+    kpts = _template(k)
+    gt = pd.DataFrame([_gt_row("coleoptera/a", kpts, k), _gt_row("coleoptera/b", kpts, k)])
+    pred = pd.DataFrame([_pred_row("coleoptera/a", kpts, k)])
+
+    out = evaluate_predictions(pred, gt, {SCHEMA: schema}, eval_cfg)
+    values = out.set_index(["scope", "metric"])["value"]
+    assert values[("overall", "pck@0.25_thorax_width")] == pytest.approx(0.5)
+    assert values[("overall", "kpt_coverage")] == pytest.approx(0.5)
+    assert values[("overall", "oks_ar")] == pytest.approx(0.5)
+
+
+def test_finetune_points_only_on_images_detected_before_and_after(project, eval_cfg) -> None:
+    """`finetune`: an image missed before must not lower the "before" point metrics."""
+    from extraits.pose.finetune import _metrics_on, detected_images
+
+    schema = load_schema(SCHEMA, project.configs)
+    schemas = {SCHEMA: schema}
+    k = schema.n_keypoints
+    kpts = _template(k)
+    gt = pd.DataFrame([_gt_row("coleoptera/a", kpts, k), _gt_row("coleoptera/b", kpts, k)])
+    before = pd.DataFrame([_pred_row("coleoptera/a", kpts, k)])   # b missed
+    after = pd.DataFrame([_pred_row(i, kpts, k) for i in ("coleoptera/a", "coleoptera/b")])
+
+    assert detected_images(before, gt, schemas, eval_cfg) == {"coleoptera/a"}
+    common = (detected_images(before, gt, schemas, eval_cfg)
+              & detected_images(after, gt, schemas, eval_cfg))
+    assert common == {"coleoptera/a"}
+    values = _metrics_on(before, gt, common, schemas, eval_cfg)
+    assert values["pck@0.25_thorax_width"] == pytest.approx(1.0)
+    assert detected_images(before.iloc[0:0], gt, schemas, eval_cfg) == set()
+
+
+def test_finetune_detected_means_carries_a_skeleton(project, cfg) -> None:
+    """Box score >= finetune.score_threshold, whatever the OKS: a wrong skeleton counts."""
+    from extraits.pose.finetune import _metrics_on, analysis_eval_cfg, detected_images
+
+    schema = load_schema(SCHEMA, project.configs)
+    schemas = {SCHEMA: schema}
+    k = schema.n_keypoints
+    kpts = _template(k)
+    far = [v + 40.0 for v in kpts]            # skeleton drawn, but far from the GT
+    gt = pd.DataFrame([_gt_row(i, kpts, k) for i in ("coleoptera/a", "coleoptera/b",
+                                                      "coleoptera/c")])
+    pred = pd.DataFrame([_pred_row("coleoptera/a", kpts, k, score=0.3),
+                         _pred_row("coleoptera/b", far, k, score=0.3),
+                         _pred_row("coleoptera/c", kpts, k, score=0.1)])
+    eval_cfg = analysis_eval_cfg(cfg)
+    assert eval_cfg.score_threshold_pointwise == pytest.approx(0.25)
+    assert cfg.eval.score_threshold_pointwise == pytest.approx(0.5)   # untouched
+
+    detected = detected_images(pred, gt, schemas, eval_cfg)
+    assert detected == {"coleoptera/a", "coleoptera/b"}
+    values = _metrics_on(pred, gt, detected, schemas, eval_cfg)
+    assert values["pck@0.25_thorax_width"] == pytest.approx(0.5)
+
+
+def test_average_precision_hand_computed() -> None:
+    scores = np.array([0.9, 0.8, 0.7])
+    tp = np.array([True, False, True])
+    # recalls 1/2 then 1; precisions 1.0 and 2/3 -> 101-point AP
+    value = average_precision(scores, tp, n_gt=2)
+    assert 0.75 < value < 0.90
+
+
+def test_average_precision_is_nan_without_gt() -> None:
+    assert np.isnan(average_precision(np.array([0.9]), np.array([False]), n_gt=0))
+
+
+def test_greedy_assignment_respects_score_order() -> None:
+    similarity = np.array([[0.9, 0.4], [0.8, 0.3]])
+    matched, _ = assign_greedy(similarity, np.array([0.5, 0.99]), threshold=0.5)
+    assert matched[1] == 0   # the best-scored prediction takes the best GT
+    assert matched[0] == -1  # the other GT is below the threshold
+
+
+def test_prediction_in_wrong_schema_is_rejected(project, eval_cfg) -> None:
+    schema = load_schema(SCHEMA, project.configs)
+    k = schema.n_keypoints
+    kpts = _template(k)
+    gt = pd.DataFrame([_gt_row("coleoptera/a", kpts, k)])
+    pred = pd.DataFrame([_pred_row("coleoptera/a", kpts, k)])
+    pred["keypoint_schema"] = "insect42_v2"
+    from extraits.pose.contracts import ContractError
+
+    with pytest.raises(ContractError, match="schema"):
+        evaluate_predictions(pred, gt, {SCHEMA: schema}, eval_cfg)

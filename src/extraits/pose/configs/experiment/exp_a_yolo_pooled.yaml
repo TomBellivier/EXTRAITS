@@ -1,0 +1,12 @@
+# @package _global_
+# Experiment A: YOLO-pose trained on all the datasets, one "insect" class.
+# Reference the per-dataset, LoRA and BatchNorm-per-group approaches compare with.
+defaults:
+  - override /data: pooled
+  - override /approach: yolo_pooled
+  - override /cv: kfold5_grouped
+  - override /eval: default
+  - override /tuning: optuna_default
+
+tag: pooled_yolo
+seed: 42

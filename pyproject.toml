@@ -1,0 +1,90 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "extraits"
+version = "0.1.0"
+description = "EXTRAITS: extract morphological traits from dorsal images of insects (pose keypoints, scale detection, measurement validity)."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Intended Audience :: Science/Research",
+]
+authors = [{ name = "Tom Bellivier" }]
+keywords = ["insects", "morphometrics", "traits", "pose estimation", "keypoints"]
+# Core = `extraits process`: pose ensemble, scale extraction, measurement validity.
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.1",
+    "scipy>=1.11",
+    "scikit-learn>=1.4",
+    "joblib>=1.3",
+    "matplotlib>=3.8",
+    "opencv-python>=4.8",
+    "Pillow>=10",
+    "PyYAML>=6",
+    "torch>=2.1",
+    "ultralytics>=8.3",
+    "easyocr>=1.7",
+    "huggingface_hub>=0.23",
+]
+
+[project.urls]
+Homepage = "https://github.com/TomBellivier/EXTRAITS"
+Documentation = "https://github.com/TomBellivier/EXTRAITS/tree/main/docs"
+Issues = "https://github.com/TomBellivier/EXTRAITS/issues"
+Changelog = "https://github.com/TomBellivier/EXTRAITS/blob/main/CHANGELOG.md"
+Models = "https://huggingface.co/TomBellivier/extraits-models"
+
+[project.optional-dependencies]
+# Pose-model training, tuning, reporting and fine-tuning (`extraits train`, `extraits
+# report`, `extraits pose`, `extraits finetune`).
+train = [
+    "hydra-core>=1.3",
+    "omegaconf>=2.3",
+    "optuna>=3.6",
+    "pyarrow>=14",
+    "torchvision>=0.16",
+]
+finetune = ["extraits[train]"]
+# Annotation tools: Label Studio and the measurement-validation desktop app
+# (`extraits annotate label-studio`, `extraits annotate validate-measurements`).
+annotation = ["label-studio>=1.10", "PySide6>=6.5"]
+dev = ["extraits[train]", "pytest>=8", "ruff>=0.5"]
+
+[project.scripts]
+extraits = "extraits.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+extraits = [
+    "*.yaml",
+    "pose/configs/**/*.yaml",
+    "pose/approaches/TEMPLATE.py.txt",
+    "annotation/label_studio_template.txt",
+    "annotation/annotation_protocol.pdf",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+# Research notebooks are kept as they were run, not linted.
+extend-exclude = ["*.ipynb"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+    "models: needs the trained models (skipped when they are absent)",
+    "smoke: minimal end-to-end test of the pose framework",
+]

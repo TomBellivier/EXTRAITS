@@ -1,0 +1,36 @@
+# Example: run EXTRAITS in Docker on a workspace folder of the host.
+#
+#   EXTRAITS_WORKSPACE=~/my-workspace docker compose run --rm extraits \
+#       process -i /workspace/images -o /workspace/results.csv
+#   docker compose --profile gpu run --rm extraits-gpu train pose
+#
+# The workspace (images, annotations, models, results) is mounted at /workspace; the
+# official models are downloaded into it on the first `process`. Files are written
+# with your user id (UID / GID, default 1000).
+services:
+  extraits:
+    image: extraits:latest
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    volumes:
+      - ${EXTRAITS_WORKSPACE:-./workspace}:/workspace
+    user: "${UID:-1000}:${GID:-1000}"
+
+  extraits-gpu:
+    profiles: [gpu]
+    image: extraits:cuda
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.cuda
+    volumes:
+      - ${EXTRAITS_WORKSPACE:-./workspace}:/workspace
+    user: "${UID:-1000}:${GID:-1000}"
+    shm_size: 8gb                     # PyTorch data loaders share memory between workers
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

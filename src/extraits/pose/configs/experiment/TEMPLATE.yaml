@@ -1,0 +1,12 @@
+# @package _global_
+# Experiment template. Copy, rename to exp_<letter>_<approach>.yaml, commit.
+# A named experiment = a row of the final results table.
+defaults:
+  - override /data: pooled            # pooled | coleoptera | diptera | hymenoptera | lepidoptera
+  - override /approach: ???           # name registered in the 'approach' registry
+  - override /cv: kfold5_grouped      # SAME folds for every approach
+  - override /eval: default           # NEVER override: makes the runs incomparable
+  - override /tuning: optuna_default  # identical budget across approaches
+
+tag: ???
+seed: 42

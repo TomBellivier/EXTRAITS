@@ -1,0 +1,1 @@
+"""Reusable model building blocks: per-group normalisation, adapters."""

@@ -1,0 +1,77 @@
+# @package _global_
+# Approach H: LoRA adapters per insect group (ADR-0036).
+# "Partial weights per group" category: a common trunk, N sets of adapters.
+# Economical counterpart of approach B — 4 sets of adapters weigh < 1 % of the network
+# where 4 complete models quadruple it.
+approach:
+  name: lora_per_dataset
+
+  weights: yolo26n-pose.pt      # ADR-0033: same base as the other approaches
+  prunable: false
+
+  # Split of the epoch budget between the two phases. The TOTAL equals `train.epochs`:
+  # without this constraint, H would have more compute than the other approaches and
+  # would win through it, not through the method (§6.3).
+  #   0.6 => 60 epochs for the common trunk, 40 per insect group.
+  epoch_split: 0.6
+
+  lora:
+    r: 8
+    # alpha = alpha_ratio x r (ADR-0031): the alpha/r prefactor makes the optimal
+    # learning rate almost independent of the rank, so searching both would explore a
+    # redundancy.
+    alpha_ratio: 2.0
+    alpha: null
+    dropout: 0.0
+    neck_blocks: 3
+    # No effect here: phase 1 trains EVERYTHING (heads included) and phase 2 leaves ONLY
+    # the adapters trainable. Kept for compatibility with D.
+    train_head: true
+
+  # --- inference ---
+  max_det: 1                    # ADR-0017: one image = one insect
+  conf: 0.001                   # LOW threshold: never truncate the AP curves (§3.4)
+  iou: 0.7
+  inference_precision: fp16
+  predict_chunk_size: 16        # ADR-0021: memory-bounded inference
+
+  # --- optimisation ---
+  optimizer: auto
+  lr0: 0.01
+  lrf: 0.01
+  momentum: 0.937
+  weight_decay: 0.0005
+  warmup_epochs: 3.0
+  cos_lr: false
+
+  # --- loss weights ---
+  box: 7.5
+  pose: 12.0
+  kobj: 1.0
+  cls: 0.5
+  dfl: 1.5
+
+  # --- augmentation: FIXED (ADR-0032), identical to the other approaches ---
+  fliplr: 0.5
+  flipud: 0.0
+  degrees: 10.0
+  translate: 0.1
+  scale: 0.5
+  shear: 0.0
+  perspective: 0.0
+  hsv_h: 0.015
+  hsv_s: 0.7
+  hsv_v: 0.4
+  mosaic: 1.0
+  close_mosaic: 10
+  mixup: 0.0
+  erasing: 0.0
+
+  # ADR-0031: FOUR hyperparameters, budget identical to the other approaches.
+  # `epoch_split` replaces `kobj`: it is the parameter specific to this approach, and the
+  # trunk/adapters trade-off is precisely what it has to calibrate.
+  search_space:
+    lr0: {type: float, low: 1.0e-4, high: 5.0e-2, log: true}
+    pose: {type: float, low: 4.0, high: 30.0}
+    lora.r: {type: categorical, choices: [4, 8, 16, 32]}
+    epoch_split: {type: float, low: 0.3, high: 0.8}

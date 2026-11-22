@@ -1,0 +1,62 @@
+# @package _global_
+# FROZEN set of metrics, identical for every approach (CONVENTIONS.md §7.2).
+# Any change to the SET or to its parameters invalidates the comparisons already
+# produced: bump eval.version and replay the runs.
+#
+# ONLY EXCEPTION: `primary_metric` can be changed freely (ADR-0010). It changes no
+# computation, only the Optuna objective and the ranking of the approaches.
+#   extraits pose train ... eval.primary_metric=measurement_mape_median \
+#                                      eval.primary_direction=minimize
+eval:
+  version: 3
+  primary_metric: oks_ap        # ADR-0010
+  primary_direction: maximize
+
+  # Thresholds
+  score_threshold_curves: 0.001 # for AP/AR: never truncate the curves
+  score_threshold_pointwise: 0.5 # for PCK/NME: "accepted detection" threshold
+  match_oks_threshold: 0.5      # pred<->gt matching for the point metrics
+  match_iou_threshold: 0.5
+
+  metrics: [detection_ap, oks_ap_ar, pck, nme, keypoint_rate, measurement_error,
+            symmetry_gap, cost]
+
+  oks:
+    thresholds: [0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95]
+    area_source: bbox           # bbox | area  (reference area for the OKS)
+    # The sigmas are NOT here: they belong to the keypoint schema
+    # (kp_infos.yaml, at the repository root), derived from the per-point difficulty (ADR-0007).
+
+  pck:
+    # A point is correct if its error < alpha * thorax width (ADR-0009).
+    # alpha=0.25 is the reference value of the project; the others give the curve.
+    alphas: [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50]
+    reference_alpha: 0.25       # alpha used for the per-keypoint detail
+    normalizer:
+      name: thorax_width
+      type: keypoint_distance   # keypoint_distance | bbox_diag
+      keypoints: [thorax-left, thorax-right]
+      fallback: bbox_diag       # bbox_diag | none; the fallback rate is published
+
+  # Morphometric measurements: the quantity actually used downstream (ADR-0008).
+  measurements:
+    enabled: true
+    # null = kp_infos.yaml at the repository root, single definition of the measurements.
+    file: null
+    symmetry: true              # left/right gap, computable without ground truth
+
+  scopes:
+    overall: true
+    per_dataset: true
+    per_keypoint: true
+
+  # Unmatched GT instances count as failures (§7.2: penalise the non-detection).
+  count_missed_gt_as_failure: true
+
+  # Mandatory qualitative export (§8.5): a model is never validated on numbers alone.
+  qualitative:
+    enabled: true
+    n_examples: 12
+    n_worst: 6                  # the worst cases by per-instance OKS
+    split: test
+    allow_missing_images: false

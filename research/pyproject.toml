@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "extraits-research"
+version = "0.1.0"
+description = "Research approaches and comparisons of the EXTRAITS paper (pose approaches b-h, scripts)."
+license = { text = "MIT" }
+requires-python = ">=3.10"
+dependencies = [
+    "extraits[train]",
+    # ADR-0025: LoRA adapters of approaches D and H.
+    "peft>=0.11",
+    # research/validity: XGBoost approaches of the measurement-validity comparison.
+    "xgboost>=2",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.5"]
+
+# Registers the approaches and their Hydra configs with `extraits pose` / `extraits train`.
+[project.entry-points."extraits.pose_plugins"]
+research = "extraits_research"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+extraits_research = ["configs/**/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["smoke: minimal end-to-end test"]

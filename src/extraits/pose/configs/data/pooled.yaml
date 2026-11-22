@@ -1,0 +1,30 @@
+# @package _global_
+# The 4 datasets seen as a single corpus (one "insect" class). The pooled models
+# predict in the union space, the reprojection to the local schema happens when the
+# predictions are written (CONVENTIONS.md §3.1).
+data:
+  scope: pooled
+  datasets: [coleoptera, diptera, hymenoptera, lepidoptera]
+  # ADR-0017: one image = one insect. Violated => blocking error at preparation.
+  single_instance_per_image: true
+  # ADR-0016: some keypoints do not exist in every insect order.
+  coverage:
+    absent_max: 0.01            # <= this annotation rate => point considered absent
+    rare_max: 0.5               # < this rate => rare point, per-point PCK not very informative
+    measurement_min_rate: 0.5   # < this rate => measurement not usable for this dataset
+  adapter: annotation_csv
+  raw_subdir: null              # null => paths.raw/<dataset> for each dataset
+  keypoint_schema: insect42_v1  # ADR-0006: the 4 datasets share this schema
+  union_space: insect42_v1      # identity mapping; the mechanism stays for a future gap
+  adapter_options:
+    # Single annotation table: each dataset takes the rows whose 'group' column holds
+    # its name.
+    # images_subdir is not set: the default {dataset} reads <workspace>/images/<order>/.
+    # The table is paths.annotation_table (<workspace>/annotations/annotation_data.csv);
+    # set csv_path here only to read another one.
+    group_column: group
+    margin: 10                  # margin in pixels around the keypoints for the bbox
+    # An annotated image missing from images/<order>/ is left out with a warning
+    # (false: the YOLO export fails on the first missing image).
+    skip_missing_images: true
+    group_id_field: null        # ADR-0011: one image = one specimen

@@ -1,0 +1,21 @@
+EXTRAITS Docker image - licence notice
+=====================================
+
+This image is distributed under the GNU Affero General Public License v3.0
+(AGPL-3.0-only), because it bundles Ultralytics YOLO, licensed under AGPL-3.0.
+The models it downloads (the official EXTRAITS models, published on the Hugging Face
+Hub) are AGPL-3.0 too: they derive from Ultralytics YOLO models.
+
+The full text of the AGPL-3.0 is in /usr/share/doc/extraits/AGPL-3.0.txt.
+
+The EXTRAITS source code itself is MIT-licensed; its complete source, including the
+Dockerfiles this image was built from, is available at https://github.com/TomBellivier/EXTRAITS.
+
+Third-party components of the image keep their own licences, among which:
+  Ultralytics      AGPL-3.0        https://github.com/ultralytics/ultralytics
+  PyTorch          BSD-3-Clause    https://github.com/pytorch/pytorch
+  EasyOCR          Apache-2.0      https://github.com/JaidedAI/EasyOCR
+  OpenCV           Apache-2.0      https://github.com/opencv/opencv-python
+  scikit-learn     BSD-3-Clause    https://github.com/scikit-learn/scikit-learn
+  Python           PSF-2.0         https://www.python.org
+See THIRD_PARTY_NOTICES.md in the EXTRAITS repository for the full list.

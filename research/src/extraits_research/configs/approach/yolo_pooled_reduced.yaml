@@ -1,0 +1,46 @@
+# @package _global_
+# Approach F: pooled YOLO-pose deprived of the legs and hind wings (ADR-0027).
+approach:
+  name: yolo_pooled_reduced
+
+  # ADR-0033: yolo26n is the FROZEN base model of the six approaches. A different size
+  # would change the capacity of the network, and the comparison would then be about it
+  # rather than about the method. To compare starting weights (side study, outside the
+  # main table):
+  #   extraits pose train experiment=exp_a_yolo_pooled \
+  #       approach.weights=yolo11n-pose.pt tag=yolo11n
+  # The `tag` is MANDATORY: without it, the two variants would be told apart by their
+  # variant_hash but would carry the same label in the figures.
+  weights: yolo26n-pose.pt
+  prunable: false
+
+  # Patterns searched in the keypoint NAMES of the schema. 'leg' covers the 8 leg
+  # points, 'hindwing' the 8 hind-wing points: 16 of the 42 points are removed from the
+  # TRAINING labels (vis = 0), never from the test.
+  #
+  # WARNING (ADR-0027): the ground truth keeps these points and the evaluation counts
+  # them. The `overall` metrics of F are therefore mechanically worse than A's and are
+  # NOT comparable. The valid comparison is on the kept points:
+  #   python scripts/compare_models.py --exclude-keypoints leg hindwing
+  drop_keypoints: [leg, hindwing]
+
+  # --- inference ---
+  max_det: 1
+  conf: 0.001
+  iou: 0.7
+  inference_precision: fp16
+  predict_chunk_size: 16
+
+  # ADR-0031: FOUR hyperparameters, budget of 20 trials. The learning rate is by far
+  # the most influential one in deep learning (fANOVA analyses: more than two thirds of
+  # the variance on LSTMs, 2nd rank on CNNs behind the depth, which is fixed here by the
+  # choice of the model). `pose` and `kobj` matter particularly outside the COCO domain:
+  # with the default values, the pose loss may not decrease at all on non-human
+  # keypoints — and we have 42 insect points.
+  # The augmentation parameters are FIXED (ADR-0032), and so is `lrf`: it interacts
+  # with the training duration and weighs much less than `lr0`.
+  search_space:
+    lr0: {type: float, low: 1.0e-4, high: 5.0e-2, log: true}
+    pose: {type: float, low: 4.0, high: 30.0}
+    kobj: {type: float, low: 0.5, high: 8.0}
+    weight_decay: {type: float, low: 1.0e-5, high: 1.0e-2, log: true}

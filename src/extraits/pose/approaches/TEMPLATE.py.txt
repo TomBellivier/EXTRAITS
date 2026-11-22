@@ -1,0 +1,64 @@
+"""APPROACH TEMPLATE - copy to <name>.py and remove the .txt extension.
+
+Deliberate .txt extension: this file must NOT be imported by load_plugins, otherwise it
+would appear in the registry and in the smoke test.
+
+Full procedure: CONVENTIONS.md §11 (6 artefacts, not one more):
+  1. src/extraits/pose/approaches/<name>.py       <- this file (or in a plugin package,
+                                                     like research/src/extraits_research/)
+  2. configs/approach/<name>.yaml
+  3. search_space (here or in tuning/search_spaces.py)
+  4. tests/pose/approaches/test_<name>.py
+  5. configs/experiment/exp_<letter>_<name>.yaml
+  6. an entry in DECISIONS.md
+
+If you have to modify a 7th existing file (evaluation/, training/, tuning/,
+reporting/), STOP: it is a design defect to report, not to work around.
+"""
+
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+
+import pandas as pd
+
+from extraits.pose.approaches.base import BaseApproach
+from extraits.pose.context import RunContext
+from extraits.pose.data.datamodule import FoldData, ImageSet
+from extraits.pose.registry import register_approach
+
+
+@register_approach("APPROACH_NAME")  # must be identical to the name of the YAML
+class TemplateApproach(BaseApproach):
+    """One sentence: what this approach tests and what it assumes."""
+
+    def fit(self, data: FoldData, ctx: RunContext) -> None:
+        """Train on data.train, validate on data.val.
+
+        RULES:
+        - never read data.test (a unit test checks it);
+        - write only into ctx.subdir(...);
+        - seeds through ctx.seed('...');
+        - the framework metrics are for monitoring, never for comparison;
+        - fill the costs in ctx.extra (model_params, train_time_s, peak_vram_mb).
+        """
+        raise NotImplementedError
+
+    def predict_instances(self, images: ImageSet, ctx: RunContext) -> pd.DataFrame:
+        """Return the predictions IN THE FRAME OF THE ORIGINAL IMAGE.
+
+        Columns: image_id, bbox_xywh, bbox_score, kpts_xy, kpts_score,
+        keypoint_schema, bbox_source, inference_ms (optional).
+
+        PITFALLS:
+        - work on a crop -> back-project with invert_affine (§9.3);
+        - multi-dataset model -> reproject from the union space to the LOCAL schema;
+        - do NOT threshold the scores here: thresholding is an evaluation operation.
+        """
+        raise NotImplementedError
+
+    @classmethod
+    def load(cls, run_dir: Path, cfg: Any) -> TemplateApproach:
+        """Reload the model from run_dir/weights without retraining."""
+        raise NotImplementedError
