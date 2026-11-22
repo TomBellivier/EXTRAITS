@@ -91,9 +91,9 @@ evaluation of the ruler detector ([research/README.md](research/README.md)).
 ## Citation
 
 If you use EXTRAITS, please cite it ([CITATION.cff](CITATION.cff)), together with the
-GRIT project, the providers of the image databases and Ultralytics YOLO.
+GRIT project, the providers of the image databases and Ultralytics YOLO. 
 
-<!-- TODO reference of the paper -->
+https://doi.org/10.5281/zenodo.24439992
 
 ## Licence
 
