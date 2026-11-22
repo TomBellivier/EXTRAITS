@@ -1,4 +1,5 @@
 # EXTRAITS
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24439992.svg)](https://doi.org/10.5281/zenodo.24439992)
 
 **EXTRA**ct **TRAITS**: morphological measurements of insects from dorsal images.
 
