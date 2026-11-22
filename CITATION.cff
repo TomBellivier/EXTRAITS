@@ -16,7 +16,7 @@ date-released: "22-11-2026"
 license: MIT
 repository-code: "https://github.com/TomBellivier/EXTRAITS"
 url: "https://github.com/TomBellivier/EXTRAITS"
-# doi: "10.5281/zenodo."   # TODO
+doi: "10.5281/zenodo.24439992"   
 keywords:
   - insects
   - morphometrics
